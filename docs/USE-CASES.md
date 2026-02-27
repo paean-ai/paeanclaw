@@ -25,6 +25,13 @@ PaeanClaw is a minimal base, not a finished product. Each use case below is buil
 15. [Meeting Prep & Follow-up Agent](#15-meeting-prep--follow-up-agent)
 16. [Home Maintenance Lifecycle Tracker](#16-home-maintenance-lifecycle-tracker)
 
+**Agentic Payments** *(requires [paean-pay-mcp](https://github.com/paean-ai/paean-pay-mcp))*
+
+17. [Pay-per-Answer Research Agent](#17-pay-per-answer-research-agent)
+18. [Agent Service Marketplace](#18-agent-service-marketplace)
+19. [Subscription-Gated Telegram Channel](#19-subscription-gated-telegram-channel)
+20. [Automated Freelance Milestone Payments](#20-automated-freelance-milestone-payments)
+
 ---
 
 ## 1. Morning Intelligence Briefing
@@ -1051,6 +1058,344 @@ Agent:  Logged! Next replacement due May 29.
 ```
 
 Your home runs like a well-maintained system, not a series of emergencies.
+
+---
+
+---
+
+## 17. Pay-per-Answer Research Agent
+
+**The scenario:** You run a deep-research agent that takes 5–10 minutes to produce a thorough report. You want to charge $0.25 USDC per query — enough to cover API costs and create a sustainable micro-service, while still being frictionless for users who already hold stablecoins. The agent creates a payment request, waits for on-chain confirmation, then delivers the output.
+
+### Build it
+
+**Step 1** — Apply the payment skill:
+```
+Apply skills/add-payment/SKILL.md
+```
+This adds `paean-pay-mcp` to your PaeanClaw installation and injects payment-aware behavior into `AGENT.md`.
+
+**Step 2** — Alternatively, add manually to `paeanclaw.config.json`:
+```json
+{
+  "mcpServers": {
+    "payment": {
+      "command": "npx",
+      "args": ["-y", "paean-pay-mcp"],
+      "env": {
+        "PAYMENT_PRIVATE_KEY_BASE": "${BASE_PRIVATE_KEY}",
+        "PAYMENT_NETWORK": "mainnet",
+        "PAYMENT_DEFAULT_CHAIN": "base"
+      }
+    },
+    "fetch": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/you/research"]
+    }
+  }
+}
+```
+
+**Step 3** — Customize `AGENT.md` with a payment gate:
+```markdown
+## Payment Policy
+
+You charge $0.25 USDC (on Base) per research request.
+
+When a user asks for a research report:
+1. Call create_payment_request(amount: "0.25", chain: "base", memo: "research-query")
+2. Present the payment address and payment ID to the user
+3. Wait for the user to confirm they have sent payment
+4. Call check_payment_status(payment_id: "...") to verify on-chain
+5. Only proceed with the research after payment is confirmed
+6. If payment is not confirmed within 30 minutes, inform the user the request expired
+```
+
+**Conversation via Telegram:**
+```
+You:    Research the current state of open-source LLM inference engines.
+        Cover: frameworks, GPU support, throughput benchmarks, and who's winning.
+
+Agent:  This is a deep research request (estimated 8 minutes). The fee is
+        $0.25 USDC on Base.
+
+        Payment request created:
+        Send 0.25 USDC to: 0xABC...123
+        Payment ID: a1b2c3d4
+        Expires: 30 min
+
+        Send the USDC and reply "paid" when done.
+
+You:    paid
+
+Agent:  [calls check_payment_status(payment_id: "a1b2c3d4")]
+        ✓ Payment confirmed (tx: 0x789...def, received 0.25 USDC)
+
+        Starting research... [fetches vLLM docs, llama.cpp benchmarks, TensorRT-LLM...]
+
+        Done. Saved to research/llm-inference-2026.md
+
+        TL;DR: vLLM leads on throughput for multi-user serving. llama.cpp
+        dominates edge/CPU deployment. TensorRT-LLM is fastest on NVIDIA
+        hardware but vendor-locked. ExLlamaV2 is the dark horse for
+        consumer GPU users...
+```
+
+Your research service has a payment rail. No credit card processor, no KYC, no subscription platform — just on-chain USDC and an MCP tool call.
+
+---
+
+## 18. Agent Service Marketplace
+
+**The scenario:** You run multiple specialized agents — a legal clause reviewer, a pitch deck critiquer, a brand naming agent. Each is a separate PaeanClaw installation. You expose them as paid services: users pay USDC, the relevant agent processes the request, and you get compensated directly to your wallet. No platform fee. No payment processor. Agent-to-agent and human-to-agent transactions work the same way.
+
+### Build it
+
+**Step 1** — Each agent in your "marketplace" has `paean-pay-mcp` and its own wallet:
+```json
+{
+  "mcpServers": {
+    "payment": {
+      "command": "npx",
+      "args": ["-y", "paean-pay-mcp"],
+      "env": {
+        "PAYMENT_PRIVATE_KEY_SOLANA": "${SOLANA_PRIVATE_KEY}",
+        "PAYMENT_NETWORK": "mainnet",
+        "PAYMENT_DEFAULT_CHAIN": "solana"
+      }
+    }
+  }
+}
+```
+Using Solana here for sub-second finality and near-zero transaction costs.
+
+**Step 2** — Each agent's `AGENT.md` encodes its pricing and capability:
+```markdown
+# Legal Clause Reviewer
+
+You review contract clauses for red flags, ambiguities, and missing provisions.
+
+## Pricing
+- Standard review (1 clause): $0.50 USDC on Solana
+- Full contract review (up to 20 clauses): $5.00 USDC on Solana
+
+## Payment Gate
+Before reviewing any clause or contract:
+1. Determine the correct tier based on input length
+2. Call create_payment_request with the appropriate amount
+3. Verify payment via check_payment_status before proceeding
+4. After confirmation, proceed with a structured review:
+   - Red flags (critical issues)
+   - Yellow flags (ambiguities to negotiate)
+   - Missing standard provisions
+```
+
+**An agent calling your agent:**
+```
+Agent A: I need to review this indemnification clause before
+         signing the vendor contract.
+
+Legal Agent: → create_payment_request(amount: "0.50", chain: "solana", memo: "clause-review")
+
+         Payment required: 0.50 USDC on Solana
+         Address: SOLANA_ADDRESS_HERE
+         Payment ID: b2c3d4e5
+
+Agent A: → send_usdc(to: "SOLANA_ADDRESS_HERE", amount: "0.50", chain: "solana")
+
+Legal Agent: → check_payment_status(payment_id: "b2c3d4e5")
+         ✓ Confirmed (400ms, $0.0001 tx fee)
+
+         [Reviews clause]
+
+         🔴 Red flag: "unlimited indemnification" with no cap. Industry
+            standard is 2x contract value. Recommend: add "in no event
+            shall indemnification exceed [2x contract value]"
+
+         🟡 Ambiguity: "gross negligence" is undefined. Specify.
+
+         ✅ Standard provisions present: limitation of liability, mutual
+            indemnification.
+```
+
+A mesh of specialized agents, each economically autonomous, each paid in USDC at sub-cent transaction costs. This is what the agent economy looks like in practice.
+
+---
+
+## 19. Subscription-Gated Telegram Channel
+
+**The scenario:** You run a Telegram channel with curated weekly AI intelligence briefings. Instead of Substack or Patreon, you gate access with a monthly USDC payment. Members send their wallet address, the agent verifies a qualifying on-chain payment, and grants access. The whole subscription system runs from your PaeanClaw instance with zero platform cut.
+
+### Build it
+
+**Step 1** — Configure the payment MCP and filesystem:
+```json
+{
+  "mcpServers": {
+    "payment": {
+      "command": "npx",
+      "args": ["-y", "paean-pay-mcp"],
+      "env": {
+        "PAYMENT_PRIVATE_KEY_BASE": "${BASE_PRIVATE_KEY}",
+        "PAYMENT_NETWORK": "mainnet"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/you/newsletter"]
+    }
+  }
+}
+```
+
+**Step 2** — Customize `AGENT.md` for subscription management:
+```markdown
+# Newsletter Subscription Agent
+
+You manage subscriptions for the "AI Intelligence Weekly" Telegram channel.
+
+Subscription: $5.00 USDC/month on Base.
+
+## Subscription flow
+When a new member messages you:
+1. Create a payment request for $5.00 USDC with memo "ai-weekly-sub"
+2. After they pay, verify via check_payment_status
+3. Record their Telegram ID and wallet in newsletter/subscribers.md
+   with subscription start date and expiry (30 days from payment)
+4. Reply: "You're subscribed! Welcome to AI Intelligence Weekly. 🎉"
+
+## Renewal check
+When an existing subscriber messages:
+1. Check newsletter/subscribers.md for their record
+2. If expired, prompt them to renew with a new payment request
+3. If active, show days remaining
+
+## Privacy
+Never share subscriber wallet addresses or payment details publicly.
+```
+
+**In Telegram DM:**
+```
+User:   Hi, I'd like to subscribe to your newsletter
+
+Agent:  Welcome! AI Intelligence Weekly is $5.00 USDC/month on Base.
+
+        Payment request:
+        Send 5.00 USDC to: 0xABC...123
+        Memo: ai-weekly-sub
+        Expires: 30 min
+
+        Reply with your wallet address and "paid" when done.
+
+User:   0xDEF...456, paid
+
+Agent:  → check_payment_status(payment_id: "c3d4e5f6")
+        ✓ Confirmed! 5.00 USDC received from 0xDEF...456
+
+        You're subscribed until March 29! 🎉
+        I'll add you to the channel now.
+        Your next issue arrives this Sunday.
+```
+
+Zero subscription platform. Zero cut taken. 100% of $5 arrives in your wallet.
+
+---
+
+## 20. Automated Freelance Milestone Payments
+
+**The scenario:** You're freelancing on a multi-week project. Instead of awkward invoice follow-ups, you and your client agree upfront to milestone-based payments: design approved → $500, dev complete → $1,500, QA passed → $500. Your agent tracks milestones, verifies completion criteria you define, and checks for on-chain payment before proceeding to the next phase — creating a trustless delivery loop.
+
+### Build it
+
+**Step 1** — Configure payment + filesystem:
+```json
+{
+  "mcpServers": {
+    "payment": {
+      "command": "npx",
+      "args": ["-y", "paean-pay-mcp"],
+      "env": {
+        "PAYMENT_PRIVATE_KEY_BASE": "${BASE_PRIVATE_KEY}",
+        "PAYMENT_NETWORK": "mainnet"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/you/projects/client-x"]
+    }
+  }
+}
+```
+
+**Step 2** — Define milestones in `milestones.md`:
+```markdown
+# Project: Client X — Web App Redesign
+
+## Milestone 1: Design Approval — $500 USDC
+- [ ] Figma designs delivered
+- [ ] Client sign-off received (message confirmation)
+- Payment address: 0xABC...123
+
+## Milestone 2: Development Complete — $1,500 USDC
+- [ ] All features per spec implemented
+- [ ] Staging deployment live at [URL]
+- Payment address: 0xABC...123
+
+## Milestone 3: QA & Launch — $500 USDC
+- [ ] Client QA sign-off
+- [ ] Production deployment confirmed
+- Payment address: 0xABC...123
+```
+
+**Step 3** — Customize `AGENT.md`:
+```markdown
+You are a freelance project manager. The ~/projects/client-x/ folder contains:
+- milestones.md: milestone definitions and payment amounts
+- deliverables/: work products for each milestone
+
+When a milestone is marked complete:
+1. Create a payment request for the milestone amount
+2. Generate an invoice summary to deliverables/invoice-M[N].md
+3. Send payment request details to the client
+4. Monitor check_payment_status until confirmed
+5. Only mark the next milestone as "active" after payment confirms
+6. Keep a transaction log in milestones.md
+
+Never share client wallet addresses or payment history in public channels.
+```
+
+**Project conversation:**
+```
+You:    Milestone 1 complete — designs delivered and client approved
+
+Agent:  Milestone 1: Design Approval ✓
+
+        Creating payment request...
+        → create_payment_request(amount: "500.00", chain: "base",
+                                  memo: "client-x-milestone-1")
+
+        Payment request ready:
+        Send 500.00 USDC to: 0xABC...123 (Base)
+        Payment ID: d4e5f6a7
+        Memo: client-x-milestone-1
+
+        Invoice saved to deliverables/invoice-M1.md
+        I'll notify you when payment confirms.
+
+[Later]
+
+Agent:  → check_payment_status(payment_id: "d4e5f6a7")
+        ✓ Payment confirmed! 500.00 USDC received (tx: 0x...xyz)
+
+        Milestone 1 complete and paid. Milestone 2 (Development — $1,500)
+        is now active. Go build! 🚀
+```
+
+Milestone payments with cryptographic proof of receipt. No invoice-chasing, no PayPal holds, no 30-day net terms.
 
 ---
 

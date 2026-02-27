@@ -64,10 +64,13 @@ PaeanClaw is a blank canvas — each use case is built by composing MCP servers 
 | **Family Coordination Hub** | A WhatsApp family bot that manages shared todos, calendars, and notes — responds only when mentioned | WhatsApp |
 | **Smart Home Commander** | Control Home Assistant with natural language: "heading home in 30 min" triggers heat, lights, and music | Telegram, PWA |
 | **Travel Itinerary Copilot** | Plan trips with auto-researched local tips, then ask questions during travel from any channel | Telegram, PWA |
+| **Pay-per-Answer Research Agent** | Charge $0.25 USDC per deep research query — payment confirmed on-chain before the work begins | Telegram, PWA |
+| **Agent Service Marketplace** | Run specialized paid agents (legal review, brand naming, code audit) — humans and other agents pay in USDC | Telegram, PWA |
+| **Milestone Payment Tracker** | Break freelance projects into USDC-gated milestones — cryptographic proof of receipt, no invoice-chasing | Telegram, PWA |
 
 Every scenario follows the same pattern: identify your channels, add MCP servers for your data, customize `AGENT.md`, and let your AI coding assistant wire it together.
 
-**→ See all 16 use cases with step-by-step build instructions in [docs/USE-CASES.md](docs/USE-CASES.md)**
+**→ See all 20 use cases with step-by-step build instructions in [docs/USE-CASES.md](docs/USE-CASES.md)**
 
 ---
 
@@ -281,9 +284,10 @@ The web interface is a PWA -- installable on mobile and desktop. Open the URL in
 
 ## Adding More Channels
 
-Beyond the built-in Telegram support, more channels can be added via skills:
+Beyond the built-in Telegram support, more channels and capabilities can be added via skills:
 
 - **WhatsApp** -- See `skills/add-whatsapp/SKILL.md`
+- **USDC payments** (Base & Solana) -- See `skills/add-payment/SKILL.md`
 
 Skills are markdown instructions that an AI coding agent (Claude Code, Cursor, etc.) follows to transform your installation. See [Contributing](docs/CONTRIBUTING.md).
 
@@ -298,7 +302,7 @@ See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the full guide.
 ## Documentation
 
 - [DESIGN.md](DESIGN.md) -- Design philosophy and architecture
-- [docs/USE-CASES.md](docs/USE-CASES.md) -- 16 real-world use cases: morning briefings, voice journaling, habit coaching, travel planning, smart home, and more
+- [docs/USE-CASES.md](docs/USE-CASES.md) -- 20 real-world use cases: morning briefings, voice journaling, habit coaching, travel planning, smart home, agent payments, and more
 - [docs/COMPARISON.md](docs/COMPARISON.md) -- Deep comparison with OpenClaw, NanoClaw, OpenPaean
 - [docs/WHY-MINIMAL.md](docs/WHY-MINIMAL.md) -- Why minimal code matters in the agentic era
 - [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) -- How to contribute (skills over features)
