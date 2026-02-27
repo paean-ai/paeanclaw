@@ -1,7 +1,7 @@
 {
   "name": "paeanclaw",
-  "version": "0.1.0",
-  "description": "Ultra-minimal local AI agent runtime with MCP tools, web PWA, and Telegram — 477 lines of code",
+  "version": "0.1.1",
+  "description": "Ultra-minimal local AI agent runtime with MCP tools, web PWA, and Telegram — ≈ 365 lines of core runtime",
   "author": "Paean AI <dev@paean.ai>",
   "license": "MIT",
   "type": "module",

@@ -1,6 +1,6 @@
 # PaeanClaw
 
-**Your local AI agent, accessible anywhere. 477 lines of code.**
+**Your local AI agent, accessible anywhere. ≈ 365 lines of core runtime.**
 
 [![npm version](https://img.shields.io/npm/v/paeanclaw.svg)](https://www.npmjs.com/package/paeanclaw) [![license](https://img.shields.io/npm/l/paeanclaw.svg)](LICENSE)
 
@@ -10,7 +10,7 @@ Ultra-minimal local agent runtime. Any LLM provider, MCP tools, web PWA + Telegr
 
 | | PaeanClaw | NanoClaw | OpenClaw | OpenPaean |
 |---|---|---|---|---|
-| **Core source** | **477 lines** | ~8,000 lines | ~420,000 lines | ~12,800 lines |
+| **Core source** | **≈ 365 lines** | ~8,000 lines | ~420,000 lines | ~12,800 lines |
 | **Source files** | **5** | 28 | ~4,900 | 66 |
 | **Runtime deps** | **2** | 9 | ~50 | 16 |
 | **LLM providers** | **Any** | Claude only | Multi (Pi) | Cloud only |
@@ -18,7 +18,7 @@ Ultra-minimal local agent runtime. Any LLM provider, MCP tools, web PWA + Telegr
 | **Channels** | PWA + Telegram | WhatsApp | 16+ platforms | Terminal |
 | **Data** | **Local SQLite** | Local SQLite | Local SQLite | Cloud PostgreSQL |
 
-PaeanClaw is **880x smaller** than OpenClaw. Its entire source fits in a single LLM context window, making it the ideal foundation for AI-assisted customization. See the [full comparison](docs/COMPARISON.md) and [why minimal code matters](docs/WHY-MINIMAL.md).
+PaeanClaw is **1,150x smaller** than OpenClaw. Its entire core runtime fits in a single LLM context window, making it the ideal foundation for AI-assisted customization. See the [full comparison](docs/COMPARISON.md) and [why minimal code matters](docs/WHY-MINIMAL.md).
 
 ## When to Use What
 
