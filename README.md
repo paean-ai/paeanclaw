@@ -1,6 +1,6 @@
 # PaeanClaw
 
-**Your local AI agent, accessible anywhere. ≈ 365 lines of core runtime.**
+**Your local AI agent, accessible anywhere. 365 lines of core code.**
 
 [![npm version](https://img.shields.io/npm/v/paeanclaw.svg)](https://www.npmjs.com/package/paeanclaw) [![license](https://img.shields.io/npm/l/paeanclaw.svg)](LICENSE)
 
@@ -10,7 +10,7 @@ Ultra-minimal local agent runtime. Any LLM provider, MCP tools, web PWA + Telegr
 
 | | PaeanClaw | NanoClaw | OpenClaw | OpenPaean |
 |---|---|---|---|---|
-| **Core source** | **≈ 365 lines** | ~8,000 lines | ~420,000 lines | ~12,800 lines |
+| **Core source** | **365 lines** (5 TypeScript files, excl. HTML frontend) | ~8,000 lines | ~420,000 lines | ~12,800 lines |
 | **Source files** | **5** | 28 | ~4,900 | 66 |
 | **Runtime deps** | **2** | 9 | ~50 | 16 |
 | **LLM providers** | **Any** | Claude only | Multi (Pi) | Cloud only |
