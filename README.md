@@ -50,6 +50,27 @@ PaeanClaw is **1,150x smaller** than OpenClaw. Its entire core runtime fits in a
 
 ---
 
+## What Can You Build?
+
+PaeanClaw is a blank canvas — each use case is built by composing MCP servers and writing a few lines of `AGENT.md`. Here are some highlights:
+
+| Scenario | What It Does | Channels |
+|----------|-------------|----------|
+| **Morning Briefing** | Wake up to a Telegram summary: calendar, PRs, headlines, weather — assembled while you slept | Telegram |
+| **Voice Journal → Structured Notes** | Record a voice memo on your commute; agent transcribes, extracts TODOs, files notes automatically | Telegram, PWA |
+| **Cross-Device Dev Bridge** | Run tests, check logs, and deploy from your iPad — your home machine works via Paean CLI gateway | PWA + CLI Gateway |
+| **Habit Streak Coach** | Daily check-ins, streak tracking, and weekly scorecards — an accountability partner in your messaging app | Telegram |
+| **Meeting Prep & Follow-up** | Get a 30-second prep brief before meetings; dictate notes after and get action items extracted | Telegram, PWA |
+| **Family Coordination Hub** | A WhatsApp family bot that manages shared todos, calendars, and notes — responds only when mentioned | WhatsApp |
+| **Smart Home Commander** | Control Home Assistant with natural language: "heading home in 30 min" triggers heat, lights, and music | Telegram, PWA |
+| **Travel Itinerary Copilot** | Plan trips with auto-researched local tips, then ask questions during travel from any channel | Telegram, PWA |
+
+Every scenario follows the same pattern: identify your channels, add MCP servers for your data, customize `AGENT.md`, and let your AI coding assistant wire it together.
+
+**→ See all 16 use cases with step-by-step build instructions in [docs/USE-CASES.md](docs/USE-CASES.md)**
+
+---
+
 ## Install
 
 ```bash
@@ -277,7 +298,7 @@ See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the full guide.
 ## Documentation
 
 - [DESIGN.md](DESIGN.md) -- Design philosophy and architecture
-- [docs/USE-CASES.md](docs/USE-CASES.md) -- Real-world use cases: morning briefings, finance copilot, smart home, second brain, and more
+- [docs/USE-CASES.md](docs/USE-CASES.md) -- 16 real-world use cases: morning briefings, voice journaling, habit coaching, travel planning, smart home, and more
 - [docs/COMPARISON.md](docs/COMPARISON.md) -- Deep comparison with OpenClaw, NanoClaw, OpenPaean
 - [docs/WHY-MINIMAL.md](docs/WHY-MINIMAL.md) -- Why minimal code matters in the agentic era
 - [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) -- How to contribute (skills over features)
