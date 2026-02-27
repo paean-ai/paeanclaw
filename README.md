@@ -167,6 +167,8 @@ PaeanClaw works with any OpenAI-compatible API.
 
 Available models: `GLM-4.7`, `GLM-4.6`, `GLM-4.5`, `GLM-4.5-Air`, `claude-sonnet-4-6`, `claude-opus-4-6`, `gemini-3-flash-preview`, `gemini-3-pro-preview`.
 
+> **Get a free API key:** Sign up at [app.paean.ai](https://app.paean.ai), then go to [Workspace Settings → Developer](https://app.paean.ai/workspace/settings) to generate your API key (`os_ak_...`). Every account includes a free monthly credit allowance — no payment required to get started.
+
 **OpenAI:**
 ```json
 { "llm": { "baseUrl": "https://api.openai.com/v1", "apiKey": "${OPENAI_API_KEY}", "model": "gpt-4o" } }
@@ -283,7 +285,7 @@ See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the full guide.
 ## Requirements
 
 - [Bun](https://bun.sh) 1.0+ (recommended) or Node.js 20+
-- An LLM API key (or a local model via Ollama)
+- An LLM API key (or a local model via Ollama) — [get a free Paean AI key](https://app.paean.ai/workspace/settings)
 
 ## License
 
