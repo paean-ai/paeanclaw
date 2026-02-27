@@ -53,7 +53,8 @@ PaeanClaw is **880x smaller** than OpenClaw. Its entire source fits in a single 
 ## Install
 
 ```bash
-npm install -g paeanclaw
+bun install -g paeanclaw    # recommended
+# or: npm install -g paeanclaw
 ```
 
 [![npm](https://img.shields.io/npm/v/paeanclaw)](https://www.npmjs.com/package/paeanclaw)
@@ -70,25 +71,27 @@ Think of it as a personal AI assistant that runs where your data lives.
 
 ## Quick Start
 
-### Option 1: npx (no install needed)
+### Option 1: bunx / npx (no install needed)
 
-Run directly with npx — PaeanClaw auto-creates config files on first run:
+Run directly — PaeanClaw auto-creates config files on first run:
 
 ```bash
 mkdir my-agent && cd my-agent
-npx paeanclaw
+bunx paeanclaw        # recommended
+# or: npx paeanclaw
 ```
 
 Edit the generated `paeanclaw.config.json` with your API key, then run again:
 
 ```bash
-npx paeanclaw
+bunx paeanclaw
 ```
 
 ### Option 2: Global install
 
 ```bash
-npm install -g paeanclaw
+bun install -g paeanclaw    # recommended (no native compile)
+# or: npm install -g paeanclaw
 mkdir my-agent && cd my-agent
 paeanclaw
 ```
@@ -98,28 +101,27 @@ paeanclaw
 ```bash
 git clone https://github.com/paean-ai/paeanclaw.git
 cd paeanclaw
-npm install
+bun install                  # or: npm install
 cp paeanclaw.config.example.json paeanclaw.config.json
 # Edit paeanclaw.config.json with your API key
-npm run build && npm start
+bun run build && bun run start:bun    # or: npm run build && npm start
 ```
 
 Open [http://localhost:3007](http://localhost:3007) in your browser.
 
 The default config uses the [Paean AI](https://paean.ai) API with GLM-4.5. To use a different provider, edit `paeanclaw.config.json`.
 
-## Runtime: Node.js or Bun
+## Runtime: Bun (recommended) or Node.js
 
-PaeanClaw works on both Node.js and Bun:
-
-| | Node.js | Bun |
+| | Bun (recommended) | Node.js |
 |---|---|---|
-| SQLite | `better-sqlite3` (native addon) | `bun:sqlite` (built-in, zero deps) |
-| Startup | ~40ms | ~20ms |
-| Install | `npm install` | `bun install` (no native compile) |
-| Run | `npm start` | `bun run start:bun` |
+| SQLite | `bun:sqlite` (built-in, zero deps) | `better-sqlite3` (native addon) |
+| Startup | **~20ms** | ~40ms |
+| Install | `bun install` (no native compile) | `npm install` |
+| Run | `bunx paeanclaw` | `npx paeanclaw` |
+| Native deps | **0** | 1 |
 
-Bun is recommended for faster startup and zero native dependencies.
+Bun eliminates all native dependencies, compiles nothing during install, and starts ~2x faster.
 
 ## Configuration
 
@@ -260,17 +262,27 @@ Beyond the built-in Telegram support, more channels can be added via skills:
 
 - **WhatsApp** -- See `skills/add-whatsapp/SKILL.md`
 
-Skills are instructions for an AI coding assistant to transform your installation.
+Skills are markdown instructions that an AI coding agent (Claude Code, Cursor, etc.) follows to transform your installation. See [Contributing](docs/CONTRIBUTING.md).
+
+## Contributing
+
+**Don't add features. Add skills.**
+
+PaeanClaw's core must stay minimal. Instead of adding code to support new channels, tools, or behaviors, contribute skill files that teach AI coding agents how to transform a user's installation on demand.
+
+See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the full guide.
 
 ## Documentation
 
 - [DESIGN.md](DESIGN.md) -- Design philosophy and architecture
+- [docs/USE-CASES.md](docs/USE-CASES.md) -- Real-world use cases: morning briefings, finance copilot, smart home, second brain, and more
 - [docs/COMPARISON.md](docs/COMPARISON.md) -- Deep comparison with OpenClaw, NanoClaw, OpenPaean
 - [docs/WHY-MINIMAL.md](docs/WHY-MINIMAL.md) -- Why minimal code matters in the agentic era
+- [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) -- How to contribute (skills over features)
 
 ## Requirements
 
-- Node.js 20+ or Bun 1.0+ (for `npx`/`npm install -g`, Node.js is sufficient)
+- [Bun](https://bun.sh) 1.0+ (recommended) or Node.js 20+
 - An LLM API key (or a local model via Ollama)
 
 ## License
