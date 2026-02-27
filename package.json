@@ -1,0 +1,49 @@
+{
+  "name": "paeanclaw",
+  "version": "0.1.0",
+  "description": "Ultra-minimal local AI agent runtime with MCP tools, accessible via web PWA or IM",
+  "author": "Paean AI <dev@paean.ai>",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "paeanclaw": "dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "start:bun": "bun dist/index.js",
+    "dev": "tsc && node dist/index.js",
+    "dev:bun": "tsc && bun dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "grammy": "^1.40.1"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paean-ai/paeanclaw.git"
+  },
+  "keywords": [
+    "paeanclaw",
+    "agent",
+    "mcp",
+    "local-first",
+    "pwa",
+    "minimal",
+    "ai",
+    "bun"
+  ],
+  "homepage": "https://github.com/paean-ai/paeanclaw"
+}

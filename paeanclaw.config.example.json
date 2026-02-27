@@ -1,0 +1,14 @@
+{
+  "llm": {
+    "baseUrl": "https://api.paean.ai/v1",
+    "apiKey": "${PAEAN_API_KEY}",
+    "model": "GLM-4.5"
+  },
+  "mcpServers": {},
+  "telegram": {
+    "token": "${TELEGRAM_BOT_TOKEN}"
+  },
+  "server": {
+    "port": 3007
+  }
+}
