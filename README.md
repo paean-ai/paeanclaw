@@ -2,6 +2,8 @@
 
 **Your local AI agent, accessible anywhere. 477 lines of code.**
 
+[![npm version](https://img.shields.io/npm/v/paeanclaw.svg)](https://www.npmjs.com/package/paeanclaw) [![license](https://img.shields.io/npm/l/paeanclaw.svg)](LICENSE)
+
 Ultra-minimal local agent runtime. Any LLM provider, MCP tools, web PWA + Telegram. Runs on Node.js or Bun. Part of the [Paean](https://paean.ai) ecosystem.
 
 ## How It Compares
@@ -48,6 +50,14 @@ PaeanClaw is **880x smaller** than OpenClaw. Its entire source fits in a single 
 
 ---
 
+## Install
+
+```bash
+npm install -g paeanclaw
+```
+
+[![npm](https://img.shields.io/npm/v/paeanclaw)](https://www.npmjs.com/package/paeanclaw)
+
 ## What Is This
 
 PaeanClaw runs an AI agent on your local machine and exposes it through a web interface and optional Telegram bot. The agent can use tools (file access, shell commands, web search, etc.) via MCP servers.
@@ -60,14 +70,38 @@ Think of it as a personal AI assistant that runs where your data lives.
 
 ## Quick Start
 
+### Option 1: npx (no install needed)
+
+Run directly with npx — PaeanClaw auto-creates config files on first run:
+
+```bash
+mkdir my-agent && cd my-agent
+npx paeanclaw
+```
+
+Edit the generated `paeanclaw.config.json` with your API key, then run again:
+
+```bash
+npx paeanclaw
+```
+
+### Option 2: Global install
+
+```bash
+npm install -g paeanclaw
+mkdir my-agent && cd my-agent
+paeanclaw
+```
+
+### Option 3: Clone and customize
+
 ```bash
 git clone https://github.com/paean-ai/paeanclaw.git
 cd paeanclaw
-npm install    # or: bun install
+npm install
 cp paeanclaw.config.example.json paeanclaw.config.json
 # Edit paeanclaw.config.json with your API key
-npm run build
-npm start      # or: bun run start:bun
+npm run build && npm start
 ```
 
 Open [http://localhost:3007](http://localhost:3007) in your browser.
@@ -236,7 +270,7 @@ Skills are instructions for an AI coding assistant to transform your installatio
 
 ## Requirements
 
-- Node.js 20+ or Bun 1.0+
+- Node.js 20+ or Bun 1.0+ (for `npx`/`npm install -g`, Node.js is sufficient)
 - An LLM API key (or a local model via Ollama)
 
 ## License

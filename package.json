@@ -1,7 +1,7 @@
 {
   "name": "paeanclaw",
   "version": "0.1.0",
-  "description": "Ultra-minimal local AI agent runtime with MCP tools, accessible via web PWA or IM",
+  "description": "Ultra-minimal local AI agent runtime with MCP tools, web PWA, and Telegram — 477 lines of code",
   "author": "Paean AI <dev@paean.ai>",
   "license": "MIT",
   "type": "module",
@@ -9,12 +9,21 @@
     "paeanclaw": "dist/index.js"
   },
   "main": "./dist/index.js",
+  "files": [
+    "dist",
+    "public",
+    "AGENT.md",
+    "paeanclaw.config.example.json",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "start:bun": "bun dist/index.js",
     "dev": "tsc && node dist/index.js",
-    "dev:bun": "tsc && bun dist/index.js"
+    "dev:bun": "tsc && bun dist/index.js",
+    "prepublishOnly": "tsc"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
@@ -37,13 +46,23 @@
   },
   "keywords": [
     "paeanclaw",
+    "paean",
     "agent",
+    "ai-agent",
     "mcp",
+    "model-context-protocol",
     "local-first",
     "pwa",
+    "telegram-bot",
     "minimal",
     "ai",
-    "bun"
+    "bun",
+    "openai-compatible",
+    "llm",
+    "tool-calling"
   ],
-  "homepage": "https://github.com/paean-ai/paeanclaw"
+  "homepage": "https://github.com/paean-ai/paeanclaw",
+  "bugs": {
+    "url": "https://github.com/paean-ai/paeanclaw/issues"
+  }
 }

@@ -14,8 +14,38 @@ interface Config {
   telegram?: { token: string };
 }
 
+function resolveConfigPath(): string {
+  return path.join(process.cwd(), 'paeanclaw.config.json');
+}
+
+function scaffoldProject(): void {
+  const cwd = process.cwd();
+  const pkgDir = path.resolve(__dirname, '..');
+  const configDest = path.join(cwd, 'paeanclaw.config.json');
+  const agentDest = path.join(cwd, 'AGENT.md');
+  const exampleSrc = path.join(pkgDir, 'paeanclaw.config.example.json');
+  const agentSrc = path.join(pkgDir, 'AGENT.md');
+
+  if (!fs.existsSync(configDest) && fs.existsSync(exampleSrc)) {
+    fs.copyFileSync(exampleSrc, configDest);
+    console.log('Created paeanclaw.config.json — edit it with your API key.');
+  }
+  if (!fs.existsSync(agentDest) && fs.existsSync(agentSrc)) {
+    fs.copyFileSync(agentSrc, agentDest);
+    console.log('Created AGENT.md — customize your agent\'s system prompt.');
+  }
+}
+
 function loadConfig(): Config {
-  const raw = fs.readFileSync(path.join(process.cwd(), 'paeanclaw.config.json'), 'utf-8');
+  const configPath = resolveConfigPath();
+  if (!fs.existsSync(configPath)) {
+    scaffoldProject();
+    if (!fs.existsSync(configPath)) {
+      console.error('No paeanclaw.config.json found. Create one with your LLM settings.');
+      process.exit(1);
+    }
+  }
+  const raw = fs.readFileSync(configPath, 'utf-8');
   const interpolated = raw.replace(/\$\{(\w+)\}/g, (_, k) => process.env[k] ?? '');
   return JSON.parse(interpolated);
 }
