@@ -84,8 +84,8 @@ Every scenario follows the same pattern: identify your channels, add MCP servers
 ## Install
 
 ```bash
-bun install -g paeanclaw    # recommended
-# or: npm install -g paeanclaw
+bun install -g --no-optional paeanclaw   # recommended (skips native deps)
+# or: npm install -g paeanclaw           # Node.js users
 ```
 
 [![npm](https://img.shields.io/npm/v/paeanclaw)](https://www.npmjs.com/package/paeanclaw)
@@ -121,8 +121,8 @@ bunx paeanclaw
 ### Option 2: Global install
 
 ```bash
-bun install -g paeanclaw    # recommended (no native compile)
-# or: npm install -g paeanclaw
+bun install -g --no-optional paeanclaw   # recommended (skips native deps)
+# or: npm install -g paeanclaw           # Node.js users
 mkdir my-agent && cd my-agent
 paeanclaw
 ```
@@ -153,6 +153,8 @@ The default config uses the [Paean AI](https://paean.ai) API with GLM-4.5. To us
 | Native deps | **0** | 1 |
 
 Bun eliminates all native dependencies, compiles nothing during install, and starts ~2x faster.
+
+> **Tip:** When installing with Bun, use `--no-optional` (e.g. `bun install -g --no-optional paeanclaw`) to skip the `better-sqlite3` native compilation entirely. Bun uses its built-in `bun:sqlite` instead.
 
 ## Configuration
 
