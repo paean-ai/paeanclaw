@@ -32,6 +32,17 @@ PaeanClaw is a minimal base, not a finished product. Each use case below is buil
 19. [Subscription-Gated Telegram Channel](#19-subscription-gated-telegram-channel)
 20. [Automated Freelance Milestone Payments](#20-automated-freelance-milestone-payments)
 
+**Autonomous DEX Trading** *(requires [paean-dex-mcp](https://github.com/paean-ai/paean-dex-mcp))*
+
+21. [Dollar-Cost Averaging Agent](#21-dollar-cost-averaging-agent)
+22. [Portfolio Rebalancing Bot](#22-portfolio-rebalancing-bot)
+23. [Yield-Seeking Stablecoin Router](#23-yield-seeking-stablecoin-router)
+24. [Token Research & Trade Agent](#24-token-research--trade-agent)
+
+**Bitget Wallet On-Chain Intelligence** *(see [USE-CASES-BITGET-WALLET.md](USE-CASES-BITGET-WALLET.md))*
+
+25–32. Multi-Chain Token Watchlist · Smart Token Discovery · On-Chain Due Diligence · Cross-Chain Swap Router · Arbitrage Scanner · Portfolio Dashboard · Whale Activity Monitor · Community Price Bot
+
 ---
 
 ## 1. Morning Intelligence Briefing
@@ -1396,6 +1407,422 @@ Agent:  → check_payment_status(payment_id: "d4e5f6a7")
 ```
 
 Milestone payments with cryptographic proof of receipt. No invoice-chasing, no PayPal holds, no 30-day net terms.
+
+---
+
+---
+
+---
+
+## Autonomous DEX Trading
+
+> **Risk notice:** DEX trading involves real financial risk. Cryptocurrency prices are volatile and on-chain transactions are irreversible. The use cases below are illustrative — always test thoroughly on testnet, start with small amounts, and never trade more than you can afford to lose. `paean-dex-mcp` is AI-generated software provided without warranty; use at your own risk.
+
+---
+
+## 21. Dollar-Cost Averaging Agent
+
+**The scenario:** You believe in a token long-term but don't want to time the market. You set up a PaeanClaw agent that automatically buys a fixed dollar amount of ETH or SOL every week, regardless of price — dollar-cost averaging via on-chain swaps. The agent executes the swap, logs the price paid, and reports to you via Telegram.
+
+### Build it
+
+**Step 1** — Add the DEX MCP server to `paeanclaw.config.json`:
+```json
+{
+  "mcpServers": {
+    "dex": {
+      "command": "npx",
+      "args": ["-y", "paean-dex-mcp"],
+      "env": {
+        "DEX_PRIVATE_KEY_BASE": "${BASE_PRIVATE_KEY}",
+        "DEX_NETWORK": "mainnet",
+        "DEX_DEFAULT_CHAIN": "base",
+        "DEX_SLIPPAGE_BPS": "100"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/you/dca-log"]
+    }
+  }
+}
+```
+
+**Step 2** — Add a weekly scheduled trigger:
+```json
+{
+  "schedule": {
+    "weekly-dca": {
+      "cron": "0 10 * * 1",
+      "message": "Execute the weekly DCA buy: swap 50 USDC for WETH on Base. Check the quote first, then execute. Log the result.",
+      "channel": "telegram",
+      "chatId": "${TELEGRAM_CHAT_ID}"
+    }
+  }
+}
+```
+
+**Step 3** — Customize `AGENT.md` with the DCA policy:
+```markdown
+## DCA Trading Policy
+
+You execute a weekly dollar-cost averaging strategy on Base.
+
+Weekly buy: 50 USDC → WETH (wrapped ETH)
+Token addresses (Base mainnet):
+- USDC: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+- WETH: 0x4200000000000000000000000000000000000006
+
+Execution process:
+1. Call get_token_balance to verify USDC balance >= 50
+2. Call get_swap_quote(input: USDC, output: WETH, amount: "50")
+3. Log the quoted price to dca-log/log.md
+4. If price impact < 1%, call execute_swap with the same parameters
+5. If price impact >= 1%, abort and alert the user
+6. Report the result: amount bought, price paid, tx hash
+7. Never proceed if balance is insufficient
+
+Risk guardrails:
+- Maximum slippage: 1% (100 bps)
+- Abort if USDC balance < 50
+- Abort if price impact > 1%
+```
+
+**Monday morning on Telegram:**
+```
+Agent:  Weekly DCA — Monday Feb 27
+
+        Checking balance: 127.50 USDC ✓
+
+        Quote: 50 USDC → 0.01584 WETH
+        Price: $3,157 per ETH
+        Price impact: 0.003% ✓
+
+        Executing swap...
+        ✓ Swap confirmed (tx: 0xabc...def)
+
+        Logged to dca-log/log.md
+        This week's buy: 0.01584 WETH at $3,157
+        Total WETH accumulated: 0.2847 WETH (18 weeks)
+```
+
+No emotion, no timing anxiety, no app to open. The strategy runs itself on a schedule you set once.
+
+---
+
+## 22. Portfolio Rebalancing Bot
+
+**The scenario:** You hold a target allocation: 60% ETH, 30% SOL, 10% USDC. Every month, prices drift the portfolio off target. Your agent checks the current allocations across both chains, calculates what needs to rebalance, and executes the trades to restore your target — all with one message.
+
+### Build it
+
+**Step 1** — Configure the DEX MCP server with keys for both chains:
+```json
+{
+  "mcpServers": {
+    "dex": {
+      "command": "npx",
+      "args": ["-y", "paean-dex-mcp"],
+      "env": {
+        "DEX_PRIVATE_KEY_BASE": "${BASE_PRIVATE_KEY}",
+        "DEX_PRIVATE_KEY_SOLANA": "${SOLANA_PRIVATE_KEY}",
+        "DEX_NETWORK": "mainnet",
+        "DEX_SLIPPAGE_BPS": "50"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/you/portfolio"]
+    }
+  }
+}
+```
+
+**Step 2** — Set a monthly rebalancing schedule:
+```json
+{
+  "schedule": {
+    "monthly-rebalance": {
+      "cron": "0 9 1 * *",
+      "message": "Run the monthly portfolio rebalance. Check current allocations, calculate drift, and rebalance to targets if any position is off by more than 5%.",
+      "channel": "telegram",
+      "chatId": "${TELEGRAM_CHAT_ID}"
+    }
+  }
+}
+```
+
+**Step 3** — Customize `AGENT.md` with portfolio targets:
+```markdown
+## Portfolio Rebalancing Policy
+
+Target allocation (by USD value):
+- WETH on Base:  60%  (address: 0x4200000000000000000000000000000000000006)
+- SOL on Solana: 30%  (address: So11111111111111111111111111111111111111112)
+- USDC on Base:  10%  (address: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913)
+
+Wallet addresses (read from portfolio/config.md):
+- Base wallet:   stored in portfolio/config.md
+- Solana wallet: stored in portfolio/config.md
+
+Rebalancing process:
+1. Read wallet addresses from portfolio/config.md
+2. Get current token balances for all positions
+3. Get current USD prices for WETH and SOL
+4. Calculate current allocation percentages
+5. Identify positions that have drifted more than 5% from target
+6. For each drift: show the proposed trade before executing
+7. Execute rebalancing swaps in order of largest drift first
+8. Log all trades to portfolio/rebalance-log.md
+9. Report final allocations after rebalancing
+
+Guardrails:
+- Only rebalance if drift > 5% on any position
+- Maximum single swap: $500 (split larger rebalances)
+- Always quote before executing; abort if price impact > 0.5%
+- Never rebalance USDC buffer below 5% of total portfolio
+```
+
+**Monthly rebalance via Telegram:**
+```
+Agent:  Monthly Portfolio Rebalance — March 1
+
+        Current allocations:
+        WETH (Base):  $2,840  → 71.0%  (target: 60%, drift: +11%)
+        SOL (Solana): $   980 → 24.5%  (target: 30%, drift:  -5.5%)
+        USDC (Base):  $   180 →  4.5%  (target: 10%, drift:  -5.5%)
+
+        Rebalancing plan:
+        • Sell 0.035 WETH → 110 USDC (reduce ETH overweight)
+        • Buy 110 USDC → SOL via cross-chain (increase SOL allocation)
+
+        Shall I proceed? (yes/no)
+
+You:    yes
+
+Agent:  Trade 1: 0.035 WETH → 110.42 USDC
+        Quote: impact 0.004% ✓
+        ✓ Executed (tx: 0x123...abc)
+
+        Trade 2: 110 USDC → 0.682 SOL
+        Quote: impact 0.012% ✓
+        ✓ Executed (sig: 5xBq...XYZ)
+
+        New allocations:
+        WETH: 59.8% ✓   SOL: 29.9% ✓   USDC: 10.3% ✓
+
+        Rebalance complete. Logged to portfolio/rebalance-log.md
+```
+
+Your portfolio stays on target without manual intervention. The agent only touches positions that have meaningfully drifted.
+
+---
+
+## 23. Yield-Seeking Stablecoin Router
+
+**The scenario:** You hold stablecoins (USDC, USDT, DAI) on Base. You want to maximize yield by routing them to the highest-yielding stablecoin when rates shift significantly. Your agent monitors the rates (via a DeFi yield MCP or a fetch to a rates API), and when the spread between stablecoins exceeds a threshold, it swaps through Uniswap v3 to capture the better yield.
+
+### Build it
+
+**Step 1** — Configure the DEX MCP and a fetch server for rate data:
+```json
+{
+  "mcpServers": {
+    "dex": {
+      "command": "npx",
+      "args": ["-y", "paean-dex-mcp"],
+      "env": {
+        "DEX_PRIVATE_KEY_BASE": "${BASE_PRIVATE_KEY}",
+        "DEX_NETWORK": "mainnet",
+        "DEX_DEFAULT_CHAIN": "base",
+        "DEX_SLIPPAGE_BPS": "10"
+      }
+    },
+    "fetch": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/you/yield-log"]
+    }
+  }
+}
+```
+
+**Step 2** — Schedule daily yield checks:
+```json
+{
+  "schedule": {
+    "yield-check": {
+      "cron": "0 8 * * *",
+      "message": "Check current stablecoin yields on Base DeFi protocols. If the spread between my current holding and the best yield is > 0.5% APY, prepare a swap recommendation.",
+      "channel": "telegram",
+      "chatId": "${TELEGRAM_CHAT_ID}"
+    }
+  }
+}
+```
+
+**Step 3** — Customize `AGENT.md` for yield routing:
+```markdown
+## Yield Routing Policy
+
+Stablecoins I track on Base:
+- USDC: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+- USDT: 0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2
+- DAI:  0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb
+
+Process:
+1. Fetch current APY rates from DeFi Llama (https://yields.llama.fi/pools)
+   Filter for Base chain, stablecoins, TVL > $10M
+2. Compare against my current holding's yield
+3. If spread > 0.5% APY: recommend a swap, show the quote
+4. If spread > 1.0% APY and user confirms: execute the swap
+5. Log all recommendations and actions to yield-log/log.md
+
+Guardrails:
+- Never execute a swap autonomously; always confirm with user for > 0.5% spread
+- Maximum slippage: 0.1% (10 bps) — stablecoin swaps should be near 1:1
+- Abort if slippage quote exceeds 0.2%
+- Keep at least $100 USDC as a buffer (don't swap entire balance)
+```
+
+**Daily check on Telegram:**
+```
+Agent:  Stablecoin Yield Check — Feb 27
+
+        Current: 450 USDC
+        Your USDC yield (Aave Base): 4.2% APY
+
+        Better options found:
+        • DAI (Morpho Base):  5.8% APY (+1.6% spread) ← recommended
+        • USDT (Aave Base):   4.5% APY (+0.3% spread)
+
+        Swap proposal: 350 USDC → 349.87 DAI
+        Quote: slippage 0.037% ✓, price impact 0.001% ✓
+        Estimated extra yield: ~$5.60/month
+
+        Approve swap? (yes/no)
+
+You:    yes
+
+Agent:  ✓ Swapped 350 USDC → 349.87 DAI (tx: 0xdef...456)
+        Remaining buffer: 100 USDC
+        Logged. Next check: tomorrow 8am.
+```
+
+Your idle stablecoins work harder without you having to monitor rates manually.
+
+---
+
+## 24. Token Research & Trade Agent
+
+**The scenario:** You spot a trending token on social media or a news feed. Instead of manually looking up the address, checking liquidity, checking the price chart, and then navigating a DEX UI, you tell your agent in plain language. It researches the token, gives you a safety and liquidity assessment, shows you a quote, and executes the trade if you approve — all in one Telegram conversation.
+
+### Build it
+
+**Step 1** — Configure the DEX MCP with fetch for research:
+```json
+{
+  "mcpServers": {
+    "dex": {
+      "command": "npx",
+      "args": ["-y", "paean-dex-mcp"],
+      "env": {
+        "DEX_PRIVATE_KEY_BASE": "${BASE_PRIVATE_KEY}",
+        "DEX_PRIVATE_KEY_SOLANA": "${SOLANA_PRIVATE_KEY}",
+        "DEX_NETWORK": "mainnet",
+        "DEX_SLIPPAGE_BPS": "200"
+      }
+    },
+    "fetch": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"]
+    }
+  }
+}
+```
+
+**Step 2** — Customize `AGENT.md` for research-first trading:
+```markdown
+## Token Research & Trade Policy
+
+When asked about trading a specific token:
+
+Research phase (always do this first):
+1. Call list_common_tokens to check if it's a well-known token
+2. If not well-known, search for the contract address via fetch
+   (try DexScreener API: https://api.dexscreener.com/latest/dex/search?q=SYMBOL)
+3. Get the token price and check for extreme price impact on a small quote
+4. Assess liquidity: if price impact > 2% for $100, flag as low liquidity
+5. Present a research summary before any trade discussion
+
+Trade phase (only after research):
+1. Get a swap quote for the requested amount
+2. Show: input/output amounts, price impact, min received, route
+3. Flag warnings: high slippage, low liquidity, unknown token
+4. Wait for explicit user confirmation before executing
+5. Never execute a trade for a token you cannot verify via DexScreener or a block explorer
+
+Hard limits:
+- Maximum trade size without extra confirmation: $200
+- Always warn if price impact > 1%
+- Refuse to trade if price impact > 5% (likely a honeypot or no liquidity)
+- Never trade unverifiable tokens (no DexScreener listing, no block explorer info)
+```
+
+**From Telegram:**
+```
+You:    Look up AERO on Base and buy $50 worth
+
+Agent:  Researching AERO (Aerodrome Finance)...
+
+        ✓ Well-known token (from common token list)
+        Address: 0x940181a94A35A4569E4529A3CDfB74e38FD98631
+        Current price: $1.42
+        Source: Uniswap v3 (Base)
+
+        Swap quote: 50 USDC → 35.21 AERO
+        Price impact: 0.008% ✓
+        Min received: 34.86 AERO (0.5% slippage)
+        Route: USDC → WETH → AERO (Uniswap v3, 0.3% fee)
+
+        Confirm purchase? (yes/no)
+
+You:    yes
+
+Agent:  ✓ Bought 35.21 AERO for 50 USDC
+        Tx: 0x789...xyz | Explorer: basescan.org/tx/0x789...xyz
+
+---
+
+You:    What about MEME token, buy $100
+
+Agent:  Researching MEME...
+
+        ⚠ Not found in well-known token list
+        DexScreener result: found 3 tokens named MEME on Base
+        Liquidity check (0x1234...): $23,400 TVL — LOW LIQUIDITY
+
+        Quote for $100: price impact 4.8% — HIGH
+        You would receive significantly less than market price.
+
+        Recommendation: Do NOT trade. Low liquidity + high price impact
+        suggests this may be a newly launched or illiquid token.
+        If you still want to proceed, please confirm and specify the
+        exact contract address you intend to buy.
+```
+
+Research before action. The agent catches low-liquidity traps before your funds go in.
+
+---
+
+## Bitget Wallet On-Chain Intelligence (Use Cases 25–32)
+
+For multi-chain market data, security audits, swap quotes, and portfolio intelligence, see the dedicated use case document:
+
+**→ [USE-CASES-BITGET-WALLET.md](USE-CASES-BITGET-WALLET.md)** — 8 use cases covering token watchlists, smart discovery, due diligence, cross-chain swaps, arbitrage scanning, portfolio dashboards, whale monitoring, and community price bots. Powered by [bitget-wallet-mcp](https://github.com/bitget-wallet-ai-lab/bitget-wallet-mcp), [bitget-wallet-skill](https://github.com/bitget-wallet-ai-lab/bitget-wallet-skill), and [bitget-wallet-cli](https://github.com/bitget-wallet-ai-lab/bitget-wallet-cli) — supporting 9+ chains with built-in security auditing.
 
 ---
 

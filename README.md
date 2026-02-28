@@ -67,10 +67,17 @@ PaeanClaw is a blank canvas — each use case is built by composing MCP servers 
 | **Pay-per-Answer Research Agent** | Charge $0.25 USDC per deep research query — payment confirmed on-chain before the work begins | Telegram, PWA |
 | **Agent Service Marketplace** | Run specialized paid agents (legal review, brand naming, code audit) — humans and other agents pay in USDC | Telegram, PWA |
 | **Milestone Payment Tracker** | Break freelance projects into USDC-gated milestones — cryptographic proof of receipt, no invoice-chasing | Telegram, PWA |
+| **Dollar-Cost Averaging Agent** | Auto-buy ETH or SOL at a fixed amount every week via on-chain DEX swaps — DCA on autopilot, no exchange accounts | Telegram |
+| **Portfolio Rebalancing Bot** | Monitor allocation drift across Base and Solana; swap back to target percentages with one approval message | Telegram, PWA |
+| **Token Research & Trade Agent** | Describe a token in plain language; agent checks liquidity, quotes the swap, and executes on your approval | Telegram, PWA |
+| **Smart Token Discovery** | Daily scan of top gainers with auto security audit — filters out honeypots and scams, delivers vetted opportunities | Telegram |
+| **On-Chain Due Diligence** | Paste a token address, get a 30-second multi-source risk report: security audit, liquidity, whale activity, and verdict | Telegram, PWA |
+| **Cross-Chain Swap Router** | "Swap 1 SOL to USDC on Base" — agent handles routing, safety checks, and calldata across 9+ chains | Telegram, PWA |
+| **Whale Activity Monitor** | Hourly anomaly detection on your token positions — alerts on unusual volume, whale accumulation, or dump signals | Telegram |
 
 Every scenario follows the same pattern: identify your channels, add MCP servers for your data, customize `AGENT.md`, and let your AI coding assistant wire it together.
 
-**→ See all 20 use cases with step-by-step build instructions in [docs/USE-CASES.md](docs/USE-CASES.md)**
+**→ See all 32 use cases with step-by-step build instructions in [docs/USE-CASES.md](docs/USE-CASES.md) and [docs/USE-CASES-BITGET-WALLET.md](docs/USE-CASES-BITGET-WALLET.md)**
 
 ---
 
@@ -288,6 +295,8 @@ Beyond the built-in Telegram support, more channels and capabilities can be adde
 
 - **WhatsApp** -- See `skills/add-whatsapp/SKILL.md`
 - **USDC payments** (Base & Solana) -- See `skills/add-payment/SKILL.md`
+- **DEX trading** (Uniswap v3 on Base, Jupiter on Solana) -- Add [`paean-dex-mcp`](https://github.com/paean-ai/paean-dex-mcp) to your MCP config
+- **On-chain intelligence** (9+ chains: prices, security audits, swap quotes, K-line data) -- Add [`bitget-wallet-mcp`](https://github.com/bitget-wallet-ai-lab/bitget-wallet-mcp) to your MCP config
 
 Skills are markdown instructions that an AI coding agent (Claude Code, Cursor, etc.) follows to transform your installation. See [Contributing](docs/CONTRIBUTING.md).
 
@@ -302,7 +311,8 @@ See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the full guide.
 ## Documentation
 
 - [DESIGN.md](DESIGN.md) -- Design philosophy and architecture
-- [docs/USE-CASES.md](docs/USE-CASES.md) -- 20 real-world use cases: morning briefings, voice journaling, habit coaching, travel planning, smart home, agent payments, and more
+- [docs/USE-CASES.md](docs/USE-CASES.md) -- 24 core use cases: morning briefings, voice journaling, habit coaching, travel planning, smart home, agent payments, DEX trading, and more
+- [docs/USE-CASES-BITGET-WALLET.md](docs/USE-CASES-BITGET-WALLET.md) -- 8 on-chain intelligence use cases: token watchlists, smart discovery, due diligence, cross-chain swaps, arbitrage, portfolio dashboards, whale monitoring, and community price bots
 - [docs/COMPARISON.md](docs/COMPARISON.md) -- Deep comparison with OpenClaw, NanoClaw, OpenPaean
 - [docs/WHY-MINIMAL.md](docs/WHY-MINIMAL.md) -- Why minimal code matters in the agentic era
 - [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) -- How to contribute (skills over features)

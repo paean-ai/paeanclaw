@@ -6,7 +6,7 @@ A deep, multi-dimensional comparison of four agent runtime projects in the perso
 
 | Metric | PaeanClaw | NanoClaw | OpenClaw | OpenPaean |
 |--------|-----------|----------|----------|-----------|
-| **Core source lines** | **477** | ~8,000 | ~420,000 | ~12,800 |
+| **Core source lines** | **365** | ~8,000 | ~420,000 | ~12,800 |
 | **Source files** | **5** | 28 | ~4,900 | 66 |
 | **Runtime dependencies** | **2** | 9 | ~50 | 16 |
 | **LLM providers** | **Any** (OpenAI-compatible) | Claude only | Pi (multi-model) | Paean cloud (multi-model) |
@@ -25,7 +25,7 @@ A deep, multi-dimensional comparison of four agent runtime projects in the perso
 ### Lines of Code
 
 ```
-PaeanClaw    ████                                                          477
+PaeanClaw    ████                                                          365
 NanoClaw     ██████████████████████████████████████                       ~8,000
 OpenPaean    ██████████████████████████████████████████████████████████  ~12,800
 OpenClaw     ████████████████████████████████████████████████ (off-chart) ~420,000
@@ -39,7 +39,7 @@ In a world where AI coding assistants modify and extend code, smaller codebases 
 
 1. **Full-context understanding.** PaeanClaw's entire source fits within a single LLM context window (~4K tokens). An AI assistant can read, understand, and safely modify the entire system. OpenClaw's ~420K lines require multi-stage analysis with significant risk of partial understanding.
 
-2. **Modification safety.** When an AI makes a change to a 477-line codebase, the blast radius is inherently limited. In a 420K-line codebase, a seemingly local change can have cascading effects across modules the AI hasn't read.
+2. **Modification safety.** When an AI makes a change to a 365-line codebase, the blast radius is inherently limited. In a 420K-line codebase, a seemingly local change can have cascading effects across modules the AI hasn't read.
 
 3. **Fork-and-customize economics.** PaeanClaw is designed to be forked. With 5 source files, every installation can safely diverge from upstream. OpenClaw's 52+ modules make custom forks expensive to maintain.
 
@@ -56,7 +56,7 @@ In a world where AI coding assistants modify and extend code, smaller codebases 
 | Test files | 0 | 5 | 971 | 3 |
 | Architecture | Single process | Host + container | Gateway monolith | CLI + cloud backend |
 
-PaeanClaw deliberately has zero test files. At 477 lines, the code is its own specification. Tests would be larger than the code they test.
+PaeanClaw deliberately has zero test files. At 365 lines, the code is its own specification. Tests would be larger than the code they test.
 
 ---
 
@@ -153,7 +153,7 @@ OpenClaw supports 16+ channels natively, which is its primary differentiator. If
 
 PaeanClaw deliberately omits container isolation and complex security policies. The trade-off is explicit:
 
-- **PaeanClaw**: Trusts the user. Minimal attack surface (477 lines). No network-exposed auth needed (runs on localhost). Security comes from simplicity.
+- **PaeanClaw**: Trusts the user. Minimal attack surface (365 lines). No network-exposed auth needed (runs on localhost). Security comes from simplicity.
 - **NanoClaw**: Trusts the container. Agents cannot access files outside mounted directories. Security comes from OS-level isolation.
 - **OpenClaw**: Trusts the policy engine. 9-layer cascade of tool permissions. Security comes from access control.
 
@@ -193,7 +193,7 @@ PaeanClaw and NanoClaw keep all conversation data on the user's machine. OpenPae
 | Extension mechanism | MCP servers + skills | MCP + Claude Code skills | Plugin system (34 bundled) | MCP config + executors |
 | Add a tool | Config change | Config change | Plugin development | Config change |
 | Add a channel | Skill (AI-guided) | Skill (AI-guided) | Plugin development | N/A |
-| Customization | Edit code (477 lines) | Edit code (~8K lines) | Config + plugins | Config |
+| Customization | Edit code (365 lines) | Edit code (~8K lines) | Config + plugins | Config |
 | AI-assisted extension | **Trivial** (full-context) | Good (small codebase) | Challenging (large codebase) | Moderate |
 
 ---
