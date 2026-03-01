@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- PaeanClaw Logo -->
+  <!-- Arch: currentColor (black in light mode, white in dark mode) -->
+  <!-- Claw marks: #00F0FF Paean Cyan -->
+
+  <!-- Outer arch (doorway shape) — the Paean signature -->
+  <path 
+    d="M 32 180 L 32 100 A 68 68 0 0 1 168 100 L 168 180" 
+    stroke="currentColor" 
+    stroke-width="6" 
+    stroke-linecap="round" 
+    stroke-linejoin="round" 
+    fill="none"
+  />
+
+  <!-- Claw mark 1 (left) — within the ring zone -->
+  <path 
+    d="M 78 72 C 74 85 68 105 64 125 Q 62 135 62 142" 
+    stroke="#00F0FF" 
+    stroke-width="5" 
+    stroke-linecap="round" 
+    fill="none"
+  />
+
+  <!-- Claw mark 2 (center) — within the ring zone -->
+  <path 
+    d="M 100 66 C 100 80 99 105 99 125 Q 99 135 100 144" 
+    stroke="#00F0FF" 
+    stroke-width="5.5" 
+    stroke-linecap="round" 
+    fill="none"
+  />
+
+  <!-- Claw mark 3 (right) — within the ring zone -->
+  <path 
+    d="M 122 72 C 126 85 132 105 136 125 Q 138 135 138 142" 
+    stroke="#00F0FF" 
+    stroke-width="5" 
+    stroke-linecap="round" 
+    fill="none"
+  />
+</svg>

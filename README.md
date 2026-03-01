@@ -1,10 +1,18 @@
-# PaeanClaw
+<p align="center">
+  <img src="public/logo.svg" alt="PaeanClaw" width="120" />
+</p>
 
-**Your local AI agent, accessible anywhere. 365 lines of core code.**
+<h1 align="center">PaeanClaw</h1>
+
+<p align="center"><strong>Your local AI agent, accessible anywhere. 365 lines of core code.</strong></p>
+
+<p align="center">
 
 [![npm version](https://img.shields.io/npm/v/paeanclaw.svg)](https://www.npmjs.com/package/paeanclaw) [![license](https://img.shields.io/npm/l/paeanclaw.svg)](LICENSE)
 
-Ultra-minimal local agent runtime. Any LLM provider, MCP tools, web PWA + Telegram. Runs on Node.js or Bun. Part of the [Paean](https://paean.ai) ecosystem.
+</p>
+
+<p align="center">Ultra-minimal local agent runtime. Any LLM provider, MCP tools, web PWA + Telegram. Runs on Node.js or Bun. Part of the <a href="https://paean.ai">Paean</a> ecosystem.</p>
 
 ## How It Compares
 
