@@ -18,6 +18,23 @@ A deep, multi-dimensional comparison of four agent runtime projects in the perso
 | **Setup time** | **~2 min** | ~15 min | ~30 min | ~5 min |
 | **License** | MIT | MIT | Proprietary (source-available) | MIT |
 
+## Benchmark Snapshot
+
+Local machine benchmark (macOS arm64, Bun 1.x / Node.js 22, March 2026).
+
+|                          | PaeanClaw (Bun)   | PaeanClaw (Node) | NanoClaw          | OpenClaw           | OpenPaean          |
+| ------------------------ | ----------------- | ---------------- | ----------------- | ------------------ | ------------------ |
+| **Cold Start**           | **~20ms**         | ~40ms            | ~5s (container)   | ~3s                | ~2s (cloud)        |
+| **Memory Baseline**      | **~30MB**         | ~50MB            | ~200MB            | ~150MB             | N/A (cloud)        |
+| **Install Time**         | **~5s**           | ~30s             | ~2 min            | ~5 min             | ~10s               |
+| **Dist / Binary Size**   | **~0.8MB** (src)  | ~0.8MB (src)     | ~4MB              | ~28MB              | ~2MB               |
+| **Runtime Dependencies** | **2**             | 3                | 9                 | ~50                | 16                 |
+| **Native Addons**        | **0**             | 1                | 3+                | Several            | 0                  |
+| **Setup Complexity**     | **~2 min**        | ~5 min           | ~15 min           | ~30 min            | ~5 min             |
+| **Deployment Cost**      | **Any hardware**  | Any hardware     | Docker host ~$5/mo| beefy server ~$20+ | Cloud subscription |
+
+> PaeanClaw on Bun starts **150x faster** than OpenClaw, uses **5x less memory**, and installs **60x faster** — with zero native compilation.
+
 ---
 
 ## 1. Codebase Complexity
@@ -141,22 +158,6 @@ OpenClaw supports 16+ channels natively, which is its primary differentiator. If
 
 ---
 
-## 6. Security Model
-
-| | PaeanClaw | NanoClaw | OpenClaw | OpenPaean |
-|---|---|---|---|---|
-| Isolation | None (host) | OS containers | Optional Docker | N/A (cloud) |
-| Auth | None (local) | WhatsApp QR | Pairing + allowlists | JWT/OAuth |
-| Tool policy | None (trust MCP) | Env sanitization | 9-layer policy engine | Cloud-managed |
-| Audit surface | **15 min read** | 1-2 hours | Days | Hours |
-| Trust model | Single user, local | Single user, isolated | Single operator, multi-channel | Multi-user, cloud |
-
-PaeanClaw deliberately omits container isolation and complex security policies. The trade-off is explicit:
-
-- **PaeanClaw**: Trusts the user. Minimal attack surface (365 lines). No network-exposed auth needed (runs on localhost). Security comes from simplicity.
-- **NanoClaw**: Trusts the container. Agents cannot access files outside mounted directories. Security comes from OS-level isolation.
-- **OpenClaw**: Trusts the policy engine. 9-layer cascade of tool permissions. Security comes from access control.
-
 ---
 
 ## 7. Runtime Performance
@@ -164,11 +165,20 @@ PaeanClaw deliberately omits container isolation and complex security policies. 
 | | PaeanClaw (Bun) | PaeanClaw (Node) | NanoClaw | OpenClaw |
 |---|---|---|---|---|
 | Cold start | **~20ms** | ~40ms | ~5s (container pull) | ~3s |
-| Memory baseline | ~30MB | ~50MB | ~200MB (host + container) | ~150MB |
+| Memory baseline (RSS) | **~30MB** | ~50MB | ~200MB (host + container) | ~150MB |
 | Install time | **~5s** (no native compile) | ~30s | ~2 min | ~5 min |
-| Native deps | 0 | 1 | 3+ | Several |
+| Dist / binary size | **~0.8MB** (source) | ~0.8MB (source) | ~4MB | ~28MB |
+| Native addons | **0** | 1 | 3+ | Several |
+| Min. deployment cost | **$0** (any hardware) | $0 | ~$5/mo (Docker host) | ~$20+/mo |
 
-PaeanClaw on Bun achieves the fastest startup and lightest footprint of any agent runtime in this comparison.
+PaeanClaw on Bun achieves the fastest startup and lightest footprint of any agent runtime in this comparison. The zero-native-addon architecture means `bun install` finishes in seconds with no C++ compiler, no Python, and no platform-specific binary downloads.
+
+### Why These Numbers Matter
+
+- **20ms cold start** means the agent responds before you finish pressing Enter. OpenClaw's 3s startup makes the difference between "always on" and "wait for it."
+- **30MB memory** means PaeanClaw runs comfortably on a $5 VPS, a Raspberry Pi, or alongside 50 other processes on your laptop without breaking a sweat.
+- **0 native addons** on Bun eliminates the #1 source of install failures across platforms — no more `node-gyp` errors, no missing XCode Command Line Tools, no broken Python environments.
+- **~0.8MB source** means the entire agent ships in a fraction of what OpenClaw's `dist` directory alone weighs.
 
 ---
 

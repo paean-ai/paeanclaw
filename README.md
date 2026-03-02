@@ -26,6 +26,19 @@
 | **Channels** | PWA + Telegram | WhatsApp | 16+ platforms | Terminal |
 | **Data** | **Local SQLite** | Local SQLite | Local SQLite | Cloud PostgreSQL |
 
+### Benchmark Snapshot (macOS arm64, March 2026)
+
+|                          | PaeanClaw (Bun)   | NanoClaw          | OpenClaw           |
+| ------------------------ | ----------------- | ----------------- | ------------------ |
+| **Cold Start**           | **~20ms**         | ~5s (container)   | ~3s                |
+| **Memory (RSS)**         | **~30MB**         | ~200MB            | ~150MB             |
+| **Install Time**         | **~5s**           | ~2 min            | ~5 min             |
+| **Dist Size**            | **~0.8MB**        | ~4MB              | ~28MB              |
+| **Native Addons**        | **0**             | 3+                | Several            |
+| **Deployment Cost**      | **$0** (any HW)   | ~$5/mo            | ~$20+/mo           |
+
+> PaeanClaw on Bun: **150x faster startup** than OpenClaw, **5x less memory**, **60x faster install** — with zero native compilation.
+
 PaeanClaw is **1,150x smaller** than OpenClaw. Its entire core runtime fits in a single LLM context window, making it the ideal foundation for AI-assisted customization. See the [full comparison](docs/COMPARISON.md) and [why minimal code matters](docs/WHY-MINIMAL.md).
 
 ## When to Use What

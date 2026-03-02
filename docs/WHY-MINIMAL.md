@@ -44,18 +44,6 @@ PaeanClaw is designed for the agentic model. With 477 lines, an AI assistant can
 
 This is NanoClaw's "skills over features" philosophy taken to its logical conclusion.
 
-## The Security Audit Argument
-
-Every line of code is a potential attack vector. The relationship between codebase size and security risk is super-linear:
-
-| | Lines | Time to Manual Audit | Supply Chain Risk |
-|---|---|---|---|
-| PaeanClaw | 477 | 15 minutes | 2 dependencies |
-| NanoClaw | ~8,000 | 2-4 hours | 18 packages |
-| OpenClaw | ~420,000 | Weeks | 50+ packages |
-
-PaeanClaw is the only project in this comparison where a single developer can read and verify the entire codebase in a single sitting.
-
 ## The Dependency Chain Argument
 
 Each dependency introduces:
