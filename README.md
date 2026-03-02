@@ -310,6 +310,96 @@ Beyond the built-in Telegram support, more channels and capabilities can be adde
 
 Skills are markdown instructions that an AI coding agent (Claude Code, Cursor, etc.) follows to transform your installation. See [Contributing](docs/CONTRIBUTING.md).
 
+## Multi-Agent / Multi-Gateway
+
+PaeanClaw is designed as a single, focused agent process. To run multiple agents with different roles, launch separate PaeanClaw instances in their own directories — each with its own config, system prompt, and port.
+
+### Directory Layout
+
+```
+my-agents/
+  primary/
+    paeanclaw.config.json    # port: 3007, general-purpose LLM
+    AGENT.md                 # "You are a helpful personal assistant..."
+  monitor/
+    paeanclaw.config.json    # port: 3008, lightweight model
+    AGENT.md                 # "You are a health-monitor agent. Check other agents periodically..."
+  executor/
+    paeanclaw.config.json    # port: 3009, powerful model with shell tools
+    AGENT.md                 # "You are a task executor. Run code, manage files..."
+```
+
+### Starting Multiple Agents
+
+```bash
+cd my-agents/primary  && paeanclaw &
+cd my-agents/monitor  && paeanclaw &
+cd my-agents/executor && paeanclaw &
+```
+
+Each instance runs independently on its own port.
+
+### Remote Access with AnyClaw
+
+Connect each agent to [AnyClaw](https://anyclaw.sh) with its own bridge and ClawKey:
+
+```bash
+anyclaw bridge -g http://localhost:3007 -k ck_p_primary_key &
+anyclaw bridge -g http://localhost:3008 -k ck_p_monitor_key &
+anyclaw bridge -g http://localhost:3009 -k ck_p_executor_key &
+```
+
+All agents appear in the AnyClaw web UI with individual status indicators. Switch between them to chat with any agent from your phone or browser.
+
+### Architecture
+
+```
+                    AnyClaw Web UI (anyclaw.sh)
+                    ┌──────────────────────────┐
+                    │  [Primary]  [Monitor]     │
+                    │  [Executor]               │
+                    └────┬──────────┬───────┬───┘
+                         │          │       │
+                      relay      relay   relay
+                         │          │       │
+  Local Machine     ┌────▼──┐  ┌───▼───┐  ┌▼──────┐
+                    │Bridge │  │Bridge │  │Bridge │
+                    │ :3007 │  │ :3008 │  │ :3009 │
+                    └───┬───┘  └───┬───┘  └───┬───┘
+                        │          │          │
+                    ┌───▼───┐  ┌───▼───┐  ┌───▼───┐
+                    │Primary│  │Monitor│  │Executor│
+                    │Agent  │  │Agent  │  │Agent   │
+                    └───────┘  └──┬─┬──┘  └────────┘
+                                  │ │
+                          health checks on
+                          Primary & Executor
+```
+
+### Agent Role Examples
+
+**Monitor Agent** — watches other agents and auto-recovers:
+
+```markdown
+<!-- monitor/AGENT.md -->
+You are a health-monitor agent. Every 5 minutes, check:
+- http://localhost:3007/api/conversations (Primary)
+- http://localhost:3009/api/conversations (Executor)
+If any agent is unreachable, report the issue via Telegram.
+Use the shell MCP server to restart failed agents.
+```
+
+**Executor Agent** — specialized for system tasks:
+
+```markdown
+<!-- executor/AGENT.md -->
+You are a task execution agent with full shell and filesystem access.
+Focus on: running tests, deployments, file management, and code tasks.
+Always confirm destructive operations before executing.
+```
+
+This multi-instance pattern keeps each agent's core at 365 lines while enabling sophisticated multi-agent workflows through composition.
+
 ## Contributing
 
 **Don't add features. Add skills.**

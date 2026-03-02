@@ -13,8 +13,10 @@ paeanclaw.config.json
 .DS_Store
 Thumbs.db
 
-# Editor
+# Editor / local settings
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
+*.local
