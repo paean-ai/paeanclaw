@@ -2,7 +2,15 @@ import { Bot } from 'grammy';
 import { runAgent, type LlmConfig } from './agent.js';
 import { ensureConversation, addMessage, getMessages } from './store.js';
 
-export async function startTelegram(token: string, llmConfig: LlmConfig, systemPrompt: string): Promise<void> {
+function isUserAllowed(ctx: { from?: { id: number; username?: string } }, allowedUsers?: string[]): boolean {
+  if (!allowedUsers || allowedUsers.length === 0) return true;
+  if (!ctx.from) return false;
+  const userId = String(ctx.from.id);
+  const username = (ctx.from.username ?? '').toLowerCase();
+  return allowedUsers.some(u => u === userId || (username && u.toLowerCase() === username));
+}
+
+export async function startTelegram(token: string, llmConfig: LlmConfig, systemPrompt: string, allowedUsers?: string[]): Promise<void> {
   const bot = new Bot(token);
 
   bot.on('message:text', async (ctx) => {
@@ -14,6 +22,7 @@ export async function startTelegram(token: string, llmConfig: LlmConfig, systemP
     const isReply = ctx.message.reply_to_message?.from?.id === ctx.me.id;
 
     if (!isPrivate && !mentioned && !isReply) return;
+    if (!isUserAllowed(ctx, allowedUsers)) return;
 
     const userMsg = text.replace(`@${botUsername}`, '').trim();
     if (!userMsg) return;

@@ -6,7 +6,8 @@
   },
   "mcpServers": {},
   "telegram": {
-    "token": "${TELEGRAM_BOT_TOKEN}"
+    "token": "${TELEGRAM_BOT_TOKEN}",
+    "allowedUsers": []
   },
   "server": {
     "port": 3007

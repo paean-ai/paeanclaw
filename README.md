@@ -194,7 +194,8 @@ cp paeanclaw.config.example.json paeanclaw.config.json
   },
   "mcpServers": {},
   "telegram": {
-    "token": "${TELEGRAM_BOT_TOKEN}"
+    "token": "${TELEGRAM_BOT_TOKEN}",
+    "allowedUsers": []
   },
   "server": {
     "port": 3007
@@ -250,6 +251,21 @@ Available models: `GLM-4.7`, `GLM-4.6`, `GLM-4.5`, `GLM-4.5-Air`, `claude-sonnet
 3. Restart PaeanClaw
 
 In private chats, the bot responds to all messages. In group chats, it responds when mentioned or replied to.
+
+### Access Control
+
+Restrict which Telegram users can interact with your bot by setting `allowedUsers`. Each entry can be a **numeric user ID** or a **username** (without `@`). If the array is empty or omitted, all users are allowed.
+
+```json
+{
+  "telegram": {
+    "token": "...",
+    "allowedUsers": ["123456789", "myusername"]
+  }
+}
+```
+
+> **Tip:** To find your Telegram user ID, message [@userinfobot](https://t.me/userinfobot).
 
 ## Adding Tools via MCP
 

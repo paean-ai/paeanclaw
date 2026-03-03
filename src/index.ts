@@ -11,7 +11,7 @@ interface Config {
   llm: LlmConfig;
   mcpServers?: Record<string, McpServerConfig>;
   server?: { port?: number };
-  telegram?: { token: string };
+  telegram?: { token: string; allowedUsers?: string[] };
 }
 
 function resolveConfigPath(): string {
@@ -158,7 +158,7 @@ async function main(): Promise<void> {
 
   if (config.telegram?.token) {
     const { startTelegram } = await import('./telegram.js');
-    startTelegram(config.telegram.token, config.llm, systemPrompt);
+    startTelegram(config.telegram.token, config.llm, systemPrompt, config.telegram.allowedUsers);
   }
 
   const port = config.server?.port ?? 3007;
