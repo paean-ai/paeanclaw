@@ -352,6 +352,37 @@ cd my-agents/executor && paeanclaw &
 
 Each instance runs independently on its own port.
 
+### Working Directory & Data Isolation
+
+PaeanClaw resolves all paths relative to **`process.cwd()`** — the directory where you run the command. There are no CLI flags and no global config fallback.
+
+| File | Resolved Path |
+|------|---------------|
+| Config | `$CWD/paeanclaw.config.json` |
+| System prompt | `$CWD/AGENT.md` |
+| Database | `$CWD/data/paeanclaw.db` |
+
+Each directory is a fully isolated agent workspace with its own configuration, conversation history, and system prompt. To create a new agent, simply create a new directory and run `paeanclaw` from it:
+
+```bash
+mkdir my-new-agent && cd my-new-agent
+paeanclaw   # auto-scaffolds config on first run
+```
+
+### Stopping Instances
+
+PaeanClaw does not currently have a built-in `stop` command. Use standard process management:
+
+```bash
+# Stop via Ctrl+C (foreground process — handles SIGINT gracefully)
+
+# Find and stop by port
+lsof -ti :3007 | xargs kill
+
+# Stop all PaeanClaw instances
+pkill -f paeanclaw
+```
+
 ### Remote Access with AnyClaw
 
 Connect each agent to [AnyClaw](https://anyclaw.sh) with its own bridge and ClawKey:
