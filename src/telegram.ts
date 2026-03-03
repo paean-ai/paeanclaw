@@ -1,7 +1,6 @@
 import { Bot } from 'grammy';
 import { runAgent, type LlmConfig } from './agent.js';
-
-const conversations = new Map<number, string[]>();
+import { ensureConversation, addMessage, getMessages } from './store.js';
 
 export async function startTelegram(token: string, llmConfig: LlmConfig, systemPrompt: string): Promise<void> {
   const bot = new Bot(token);
@@ -19,19 +18,22 @@ export async function startTelegram(token: string, llmConfig: LlmConfig, systemP
     const userMsg = text.replace(`@${botUsername}`, '').trim();
     if (!userMsg) return;
 
-    const history = conversations.get(chatId) ?? [];
-    history.push(userMsg);
-    if (history.length > 40) history.splice(0, history.length - 40);
-    conversations.set(chatId, history);
+    const convId = `telegram-${chatId}`;
+    const title = ctx.chat.type === 'private'
+      ? `Telegram: ${ctx.from?.first_name || chatId}`
+      : `Telegram: ${(ctx.chat as { title?: string }).title || chatId}`;
+    ensureConversation(convId, title);
+    addMessage(convId, 'user', userMsg);
 
-    const messages = history.map((m, i) => ({
-      role: i % 2 === 0 ? 'user' : 'assistant',
-      content: m,
+    const history = getMessages(convId).map(m => ({
+      role: m.role,
+      content: m.content,
+      ...(m.tool_calls ? { tool_calls: JSON.parse(m.tool_calls) } : {}),
     }));
 
     let response = '';
     try {
-      for await (const event of runAgent(llmConfig, systemPrompt, messages)) {
+      for await (const event of runAgent(llmConfig, systemPrompt, history)) {
         if (event.type === 'content') response += event.text;
         if (event.type === 'done' && !response) response = event.content;
       }
@@ -40,7 +42,7 @@ export async function startTelegram(token: string, llmConfig: LlmConfig, systemP
     }
 
     if (response) {
-      history.push(response);
+      addMessage(convId, 'assistant', response);
       const maxLen = 4096;
       for (let i = 0; i < response.length; i += maxLen) {
         await ctx.reply(response.slice(i, i + maxLen), {

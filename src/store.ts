@@ -39,7 +39,7 @@ const dataDir = path.join(process.cwd(), 'data');
 fs.mkdirSync(dataDir, { recursive: true });
 
 let stmts: {
-  createConv: Stmt; listConvs: Stmt; updateTitle: Stmt; addMsg: Stmt; getMsgs: Stmt;
+  createConv: Stmt; ensureConv: Stmt; listConvs: Stmt; updateTitle: Stmt; addMsg: Stmt; getMsgs: Stmt;
 };
 
 export async function initStore(): Promise<void> {
@@ -57,6 +57,7 @@ export async function initStore(): Promise<void> {
   `);
   stmts = {
     createConv: db.prepare('INSERT INTO conversations (id, title, created_at) VALUES (?, ?, ?)'),
+    ensureConv: db.prepare('INSERT OR IGNORE INTO conversations (id, title, created_at) VALUES (?, ?, ?)'),
     listConvs: db.prepare('SELECT * FROM conversations ORDER BY created_at DESC'),
     updateTitle: db.prepare('UPDATE conversations SET title = ? WHERE id = ?'),
     addMsg: db.prepare('INSERT INTO messages (conversation_id, role, content, tool_calls, created_at) VALUES (?, ?, ?, ?, ?)'),
@@ -69,6 +70,10 @@ export function createConversation(title = 'New conversation'): Conversation {
   const now = new Date().toISOString();
   stmts.createConv.run(id, title, now);
   return { id, title, created_at: now };
+}
+
+export function ensureConversation(id: string, title: string): void {
+  stmts.ensureConv.run(id, title, new Date().toISOString());
 }
 
 export function listConversations(): Conversation[] {
