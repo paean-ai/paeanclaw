@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { runAgent, type LlmConfig } from './agent.js';
 import { connectAll, shutdown, type McpServerConfig } from './mcp.js';
-import { initStore, createConversation, listConversations, addMessage, getMessages, updateTitle } from './store.js';
+import { initStore, createConversation, ensureConversation, listConversations, addMessage, getMessages, updateTitle } from './store.js';
 
 interface Config {
   llm: LlmConfig;
@@ -115,7 +115,13 @@ async function main(): Promise<void> {
     if (req.method === 'POST' && url.pathname === '/api/chat') {
       const body = JSON.parse(await readBody(req));
       const { message, conversationId } = body;
-      const convId = conversationId || createConversation(message.slice(0, 60)).id;
+      let convId: string;
+      if (conversationId) {
+        ensureConversation(conversationId, message.slice(0, 60));
+        convId = conversationId;
+      } else {
+        convId = createConversation(message.slice(0, 60)).id;
+      }
       addMessage(convId, 'user', message);
 
       const history = getMessages(convId).map(m => ({
