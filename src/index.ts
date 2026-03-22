@@ -91,7 +91,108 @@ function json(res: http.ServerResponse, data: unknown, status = 200): void {
   res.end(JSON.stringify(data));
 }
 
+async function handleWechatCLI(): Promise<boolean> {
+  const args = process.argv.slice(2);
+  if (args.length === 0) return false;
+  const sub = args[0];
+
+  if (sub === 'wechat-setup' || (sub === 'wechat' && args[1] === 'setup')) {
+    const { fetchQRCode, pollQRStatus, DEFAULT_BASE_URL } = await import('./wechat-api.js');
+    const { saveCredentials, loadCredentials } = await import('./wechat-credentials.js');
+
+    const existing = loadCredentials();
+    if (existing) {
+      console.log(`Existing WeChat account: ${existing.accountId} (saved: ${existing.savedAt})`);
+    }
+
+    console.log('Fetching WeChat login QR code...\n');
+    const qrResp = await fetchQRCode(DEFAULT_BASE_URL);
+    try {
+      const qrterm = await import('qrcode-terminal');
+      await new Promise<void>(resolve => {
+        qrterm.default.generate(qrResp.qrcode_img_content, { small: true }, (qr: string) => { console.log(qr); resolve(); });
+      });
+    } catch { console.log(`QR URL: ${qrResp.qrcode_img_content}\n`); }
+
+    console.log('Scan the QR code with WeChat...\n');
+    const deadline = Date.now() + 480_000;
+    let scanned = false;
+    while (Date.now() < deadline) {
+      const status = await pollQRStatus(DEFAULT_BASE_URL, qrResp.qrcode);
+      switch (status.status) {
+        case 'wait': process.stdout.write('.'); break;
+        case 'scaned': if (!scanned) { console.log('\nScanned! Confirm on phone...'); scanned = true; } break;
+        case 'expired': console.error('\nQR code expired.'); process.exit(1); break;
+        case 'confirmed': {
+          if (!status.ilink_bot_id || !status.bot_token) { console.error('\nLogin failed.'); process.exit(1); }
+          saveCredentials({
+            token: status.bot_token, baseUrl: status.baseurl || DEFAULT_BASE_URL,
+            accountId: status.ilink_bot_id, userId: status.ilink_user_id,
+            savedAt: new Date().toISOString(),
+          });
+          console.log('\n✓ WeChat connected!\n');
+          console.log('Next steps:');
+          console.log('  1. Ensure "wechat": {} is in paeanclaw.config.json');
+          console.log('  2. Start the server: npx paeanclaw');
+          console.log('     The WeChat channel will activate automatically.\n');
+          return true;
+        }
+      }
+      await new Promise(r => setTimeout(r, 1000));
+    }
+    console.error('\nLogin timed out.');
+    process.exit(1);
+  }
+
+  if (sub === 'wechat-status' || (sub === 'wechat' && args[1] === 'status')) {
+    const { loadCredentials } = await import('./wechat-credentials.js');
+    const account = loadCredentials();
+    if (account) {
+      console.log('✓ WeChat: Logged in');
+      console.log(`  Account: ${account.accountId}`);
+      console.log(`  User:    ${account.userId ?? 'N/A'}`);
+      console.log(`  Saved:   ${account.savedAt}`);
+    } else {
+      console.log('✗ WeChat: Not logged in');
+      console.log('  Run: npx paeanclaw wechat-setup');
+    }
+    return true;
+  }
+
+  if (sub === 'wechat-logout' || (sub === 'wechat' && args[1] === 'logout')) {
+    const { removeCredentials, loadCredentials } = await import('./wechat-credentials.js');
+    if (!loadCredentials()) { console.log('No WeChat credentials found.'); return true; }
+    removeCredentials();
+    console.log('✓ WeChat credentials removed.');
+    return true;
+  }
+
+  if (sub === 'help' || sub === '--help' || sub === '-h') {
+    console.log(`paeanclaw — AI agent server with Telegram & WeChat channels
+
+Usage:
+  npx paeanclaw                  Start the server (reads paeanclaw.config.json)
+  npx paeanclaw wechat-setup     Authenticate with WeChat via QR code
+  npx paeanclaw wechat-status    Show WeChat login status
+  npx paeanclaw wechat-logout    Remove WeChat credentials
+
+WeChat setup:
+  1. Run "npx paeanclaw wechat-setup" and scan the QR code
+  2. Add "wechat": {} to paeanclaw.config.json
+  3. Start the server: npx paeanclaw
+     The WeChat channel activates automatically.
+
+Config: paeanclaw.config.json (see paeanclaw.config.example.json)
+`);
+    return true;
+  }
+
+  return false;
+}
+
 async function main(): Promise<void> {
+  if (await handleWechatCLI()) return;
+
   const config = loadConfig();
   const systemPrompt = loadSystemPrompt();
   await initStore();
@@ -176,6 +277,8 @@ async function main(): Promise<void> {
   const port = config.server?.port ?? 3007;
   server.listen(port, () => {
     console.log(`🐾 PaeanClaw running at http://localhost:${port}`);
+    if (config.telegram?.token) console.log('   Telegram channel: active');
+    if (config.wechat) console.log('   WeChat channel: active');
   });
 }
 
