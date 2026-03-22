@@ -79,7 +79,7 @@ export async function startWechat(
 
   let getUpdatesBuf = loadSyncBuf();
   let consecutiveFailures = 0;
-  console.log('[wechat] Listening for messages...');
+  console.log('[wechat] 💬 WeChat channel connected — listening for messages...');
 
   while (true) {
     try {
@@ -107,8 +107,12 @@ export async function startWechat(
         if (!isUserAllowed(senderId, wechatConfig.allowedUsers)) continue;
         if (msg.context_token) contextTokenCache.set(senderId, msg.context_token);
 
+        const senderName = senderId.split('@')[0] || senderId;
+        const preview = text.length > 80 ? text.slice(0, 80) + '...' : text;
+        console.log(`[wechat] 💬 ← ${senderName}: ${preview}`);
+
         const convId = `wechat-${senderId}`;
-        const title = `WeChat: ${senderId.split('@')[0] || senderId}`;
+        const title = `WeChat: ${senderName}`;
         ensureConversation(convId, title);
         addMessage(convId, 'user', text);
 
@@ -121,13 +125,19 @@ export async function startWechat(
         try {
           for await (const event of runAgent(llmConfig, systemPrompt, history)) {
             if (event.type === 'content') response += event.text;
+            if (event.type === 'tool_call') console.log(`[wechat]   🔧 ${event.name ?? 'tool'}...`);
+            if (event.type === 'tool_result') console.log(`[wechat]   ✓ tool complete`);
             if (event.type === 'done' && !response) response = event.content;
           }
         } catch (e) {
           response = `Error: ${e instanceof Error ? e.message : String(e)}`;
+          console.error(`[wechat]   ✗ Agent error: ${response}`);
         }
 
         if (response) {
+          const respPreview = response.length > 100 ? response.slice(0, 100) + '...' : response;
+          console.log(`[wechat] 💬 → ${senderName}: ${respPreview}`);
+
           addMessage(convId, 'assistant', response);
           const ctxToken = contextTokenCache.get(senderId);
           if (ctxToken) {
@@ -136,6 +146,7 @@ export async function startWechat(
               try { await sendTextMessage(account.baseUrl, account.token, senderId, response.slice(i, i + maxLen), ctxToken); }
               catch (e) { console.error(`[wechat] Send failed: ${e instanceof Error ? e.message : e}`); }
             }
+            console.log(`[wechat] ✓ Reply sent to ${senderName}`);
           }
         }
       }
