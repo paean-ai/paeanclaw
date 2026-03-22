@@ -12,6 +12,7 @@ interface Config {
   mcpServers?: Record<string, McpServerConfig>;
   server?: { port?: number };
   telegram?: { token: string; allowedUsers?: string[] };
+  wechat?: { allowedUsers?: string[] };
 }
 
 function resolveConfigPath(): string {
@@ -165,6 +166,11 @@ async function main(): Promise<void> {
   if (config.telegram?.token) {
     const { startTelegram } = await import('./telegram.js');
     startTelegram(config.telegram.token, config.llm, systemPrompt, config.telegram.allowedUsers);
+  }
+
+  if (config.wechat) {
+    const { startWechat } = await import('./wechat.js');
+    startWechat(config.wechat, config.llm, systemPrompt);
   }
 
   const port = config.server?.port ?? 3007;

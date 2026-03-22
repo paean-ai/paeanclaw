@@ -9,6 +9,9 @@
     "token": "${TELEGRAM_BOT_TOKEN}",
     "allowedUsers": []
   },
+  "wechat": {
+    "allowedUsers": []
+  },
   "server": {
     "port": 3007
   }
