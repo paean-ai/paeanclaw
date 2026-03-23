@@ -5,7 +5,7 @@ import {
   DEFAULT_BASE_URL, MSG_TYPE_USER,
   type AccountData,
 } from './wechat-api.js';
-import { loadCredentials, saveCredentials, loadSyncBuf, saveSyncBuf } from './wechat-credentials.js';
+import { loadCredentials, saveCredentials, loadSyncBuf, saveSyncBuf, saveContact } from './wechat-credentials.js';
 
 const MAX_CONSECUTIVE_FAILURES = 3;
 const BACKOFF_DELAY_MS = 30_000;
@@ -105,7 +105,10 @@ export async function startWechat(
         if (!text) continue;
         const senderId = msg.from_user_id ?? 'unknown';
         if (!isUserAllowed(senderId, wechatConfig.allowedUsers)) continue;
-        if (msg.context_token) contextTokenCache.set(senderId, msg.context_token);
+        if (msg.context_token) {
+          contextTokenCache.set(senderId, msg.context_token);
+          saveContact(senderId, msg.context_token);
+        }
 
         const senderName = senderId.split('@')[0] || senderId;
         const preview = text.length > 80 ? text.slice(0, 80) + '...' : text;

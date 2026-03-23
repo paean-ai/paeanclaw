@@ -2,9 +2,17 @@ import fs from 'fs';
 import path from 'path';
 import type { AccountData } from './wechat-api.js';
 
+export interface WechatContact {
+  userId: string;
+  contextToken: string;
+  lastSeen: string;
+  displayName?: string;
+}
+
 const WECHAT_DIR = path.join(process.cwd(), 'data', 'wechat');
 const CREDENTIALS_FILE = path.join(WECHAT_DIR, 'account.json');
 const SYNC_BUF_FILE = path.join(WECHAT_DIR, 'sync_buf.txt');
+const CONTACTS_FILE = path.join(WECHAT_DIR, 'contacts.json');
 
 export function loadCredentials(): AccountData | null {
   try {
@@ -34,4 +42,29 @@ export function saveSyncBuf(buf: string): void {
     fs.mkdirSync(WECHAT_DIR, { recursive: true });
     fs.writeFileSync(SYNC_BUF_FILE, buf, 'utf-8');
   } catch { /* ignore */ }
+}
+
+export function loadContacts(): WechatContact[] {
+  try {
+    if (!fs.existsSync(CONTACTS_FILE)) return [];
+    return JSON.parse(fs.readFileSync(CONTACTS_FILE, 'utf-8'));
+  } catch { return []; }
+}
+
+export function saveContact(userId: string, contextToken: string): void {
+  const contacts = loadContacts();
+  const displayName = userId.split('@')[0] || userId;
+  const idx = contacts.findIndex(c => c.userId === userId);
+  const entry: WechatContact = { userId, contextToken, lastSeen: new Date().toISOString(), displayName };
+  if (idx >= 0) contacts[idx] = entry; else contacts.push(entry);
+  try {
+    fs.mkdirSync(WECHAT_DIR, { recursive: true });
+    fs.writeFileSync(CONTACTS_FILE, JSON.stringify(contacts, null, 2), 'utf-8');
+  } catch { /* ignore */ }
+}
+
+export function getContactToken(userId: string): string | null {
+  const contacts = loadContacts();
+  const match = contacts.find(c => c.userId === userId || c.displayName === userId);
+  return match?.contextToken ?? null;
 }
